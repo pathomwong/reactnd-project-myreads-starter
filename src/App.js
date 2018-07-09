@@ -24,10 +24,22 @@ class BooksApp extends React.Component {
     
   }
 
-  handleChange = (index, event) => {
+  changeShelf = (id, event) => {
+    let shelf = event.target.value;
     let bookList = this.state.bookList;
-    bookList[index].shelf = event.target.value;
+    bookList.forEach((book)=>{
+      if(book.id === id){
+        book.shelf = shelf;
+      }
+    });
     this.setState(bookList);
+  }
+
+  addNewBook = (book, event) => {
+    book.shelf = event.target.value;
+    this.setState(()=>{
+      this.state.bookList.push(book);
+    });
   }
 
   render() {
@@ -35,9 +47,11 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
         <Route exact path="/" render={()=>(
-          <ListBooks bookList={this.state.bookList} changeShelf={this.handleChange}/>
+          <ListBooks bookList={this.state.bookList} changeShelf={this.changeShelf}/>
         )}/>
-        <Route path="/search" component={SearchBooks}/>
+        <Route path="/search" render={() => (
+          <SearchBooks addNewBook={this.addNewBook}/>
+         )}/>
       </div>
     )
   }
