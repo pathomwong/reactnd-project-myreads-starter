@@ -18,17 +18,25 @@ class BooksApp extends React.Component {
   }
 
   componentDidMount(){
-    BooksAPI.getAll().then((books)=>{
-      this.setState({ bookList: books})
+    BooksAPI.getAll().then((bookList)=>{
+      this.setState({ bookList})
     })
     
   }
 
+  handleChange = (index, event) => {
+    let bookList = this.state.bookList;
+    bookList[index].shelf = event.target.value;
+    this.setState(bookList);
+  }
+
   render() {
-    console.log(this.state.bookList);
+    // console.log(this.state.bookList);
     return (
       <div className="app">
-        <Route exact path="/" component={ListBooks} />
+        <Route exact path="/" render={()=>(
+          <ListBooks bookList={this.state.bookList} changeShelf={this.handleChange}/>
+        )}/>
         <Route path="/search" component={SearchBooks}/>
       </div>
     )
