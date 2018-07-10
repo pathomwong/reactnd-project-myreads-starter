@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import * as BooksAPI from './BooksAPI'
-
+import Book from './Book'
 
 class SearchBooks extends React.Component {
 
@@ -11,11 +11,22 @@ class SearchBooks extends React.Component {
 
     search = (event) => {
         //console.log(event.target.value);
-        BooksAPI.search(event.target.value).then((bookList) => {
-            this.setState({ bookList })
-            console.log(bookList.error === undefined)
-        })
-        console.log(this.state.bookList);
+        if (event.target.value.length > 0){
+            BooksAPI.search(event.target.value).then((bookList) => {
+                if (bookList.error === undefined){
+                    bookList.forEach((book) => {
+                        if (this.props.bookList.find(b => b.id === book.id) !== undefined){
+                            book.shelf = this.props.bookList.find(b => b.id === book.id).shelf;
+                        }
+                    });
+                }
+                this.setState({ bookList })
+            // console.log(bookList.error === undefined)
+            })
+            //console.log(this.state.bookList);
+        }else{
+            this.setState({ bookList:[] })
+        }
     }
 
     render() {
@@ -48,15 +59,15 @@ class SearchBooks extends React.Component {
                 </div>
                 <div className="search-books-results">
                     <ol className="books-grid">
-                        {(this.state.bookList.error === undefined) && this.state.bookList.map((book) => (
+                        {/* {(this.state.bookList.error === undefined) && this.state.bookList.map((book) => (
                             <li key={book.id}>
                                 <div className="book">
                                     <div className="book-top">
                                         <div className="book-cover" style={{
-                                            width: 128, height: 193, backgroundImage: `url(${book.imageLinks.thumbnail})`
+                                            width: 128, height: 193, backgroundImage: `url(${book.imageLinks && book.imageLinks.thumbnail})`
                                         }}></div>
                                         <div className="book-shelf-changer">
-                                            <select onChange={(event) => this.props.addNewBook(book, event)}>
+                                            <select onChange={(event) => this.props.addNewBook(book, event)} value='none'>
                                                 <option value="move" disabled>Move to...</option>
                                                 <option value="currentlyReading">Currently Reading</option>
                                                 <option value="wantToRead">Want to Read</option>
@@ -66,9 +77,15 @@ class SearchBooks extends React.Component {
                                         </div>
                                     </div>
                                     <div className="book-title">{book.title}</div>
+                                    <div className="book-authors">{book.authors && book.authors.join(', ')}</div>
                                 </div>
                             </li>
-                        ))}
+                        ))} */}
+                        <Book bookList={this.state.bookList} shelf={"currentlyReading"} changeShelf={this.props.addNewBook} />
+                        <Book bookList={this.state.bookList} shelf={"wantToRead"} changeShelf={this.props.addNewBook} />
+                        <Book bookList={this.state.bookList} shelf={"read"} changeShelf={this.props.addNewBook} />
+                        <Book bookList={this.state.bookList} shelf={"none"} changeShelf={this.props.addNewBook} />
+                        <Book bookList={this.state.bookList} shelf={undefined} changeShelf={this.props.addNewBook} />
                     </ol>
                 </div>
             </div>

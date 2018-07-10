@@ -24,7 +24,8 @@ class BooksApp extends React.Component {
     
   }
 
-  changeShelf = (id, event) => {
+  changeShelf = (book, event) => {
+    let id = book.id;
     let shelf = event.target.value;
     let bookList = this.state.bookList;
     bookList.forEach((book)=>{
@@ -32,14 +33,20 @@ class BooksApp extends React.Component {
         book.shelf = shelf;
       }
     });
-    this.setState(bookList);
+    BooksAPI.update(book, shelf).then(() => { this.setState(bookList);});
   }
 
   addNewBook = (book, event) => {
-    book.shelf = event.target.value;
-    this.setState(()=>{
-      this.state.bookList.push(book);
-    });
+    if (this.state.bookList.find(b => b.id === book.id)){
+      this.changeShelf(book, event);
+    }else{
+      book.shelf = event.target.value;
+      BooksAPI.update(book, book.shelf).then(() => {
+        this.setState(() => {
+          this.state.bookList.push(book);
+        });
+      })
+    }
   }
 
   render() {
@@ -50,7 +57,7 @@ class BooksApp extends React.Component {
           <ListBooks bookList={this.state.bookList} changeShelf={this.changeShelf}/>
         )}/>
         <Route path="/search" render={() => (
-          <SearchBooks addNewBook={this.addNewBook}/>
+          <SearchBooks bookList={this.state.bookList} addNewBook={this.addNewBook}/>
          )}/>
       </div>
     )
